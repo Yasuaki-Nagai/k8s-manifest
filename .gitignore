@@ -1,0 +1,4 @@
+.idea
+k8s-manifest.iml
+.DS_Store
+values.secret.yaml
