@@ -24,19 +24,19 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
           livenessProbe:
             httpGet:
               path: /health
-              port: http
+              port: {{ .Values.service.targetPort }}
           readinessProbe:
             httpGet:
               path: /health
-              port: http
+              port: {{ .Values.service.targetPort }}
           startupProbe:
             httpGet:
               path: /health
-              port: http
+              port: {{ .Values.service.targetPort }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

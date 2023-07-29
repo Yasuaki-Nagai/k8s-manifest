@@ -1,0 +1,59 @@
+name: Push manifest to ArgoCD synced repository
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          path: public
+
+      - name: Clone private repository
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ secrets.USER_NAME }}/${{ secrets.PRIVATE_REPO_NAME }}
+          ssh-key: ${{ secrets.PRIVATE_REPO_SSH_KEY }}
+          path: private
+          ref: develop
+
+      - name: Copy
+        run: |
+          cp -rT ./public/manifests ./private/manifests
+          cp -rT ./public/.github/private ./private/.github
+
+      - name: Commit
+        working-directory: private
+        continue-on-error: true
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .
+          git commit -m"${{ github.event.head_commit.message }}"
+          git push origin develop
+
+      - name: Generate GitHub Apps token
+        working-directory: public/.github/scripts/generate-app-token
+        id: generate
+        env:
+          APP_ID: ${{ secrets.APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+        run: |
+          go run main.go
+
+      - name: Create PR
+        working-directory: private
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.generate.outputs.accessToken }}
+        run: |
+          gh pr create --base "main" --title "Merge into main from develop" --body "
+          Created by GitHub Actions
+          https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+          "
