@@ -44,6 +44,8 @@ jobs:
         env:
           APP_ID: ${{ secrets.APP_ID }}
           APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+          USER_NAME: ${{ secrets.USER_NAME }}
+          PRIVATE_REPO_NAME: ${{ secrets.PRIVATE_REPO_NAME }}
         run: |
           go run main.go
 
