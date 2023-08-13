@@ -72,7 +72,7 @@ func main() {
 func getEnv(key string) string {
 	env := os.Getenv(key)
 	if env == "" {
-		log.Fatalf("[ERROR] Can not read environment variable: key=%s", appPrivateKeyEnvKey)
+		log.Fatalf("[ERROR] Can not read environment variable: key=%s", key)
 	}
 	return env
 }
